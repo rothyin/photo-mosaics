@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        h3 {
+            text-align: center;
+        }
+
+        h3 {
+            text-align: center;
+        }
+
+        h4 {
+            text-align: center;
+        }
+
+        body {
+            margin: auto;
+            width: 85%;
+        }
+
+        .row {
+            display: flex;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .column {
+            display: inline-block;
+        }
+
+        figure {
+            text-align: center;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        table {
+            margin: auto;
+        }
+    </style>
+    <title>[Auto]Stitching Photo Mosaics</title>
+</head>
+
+
+<body>
+    <h1>[Auto]Stitching Photo Mosaics</h1>
+    <h4>Roth Yin | rothyin@berkeley.edu</h4>
+
+    <br>
+    <br>
+    <br>
+
+    <h2>Part 1: Image Warping and Mosaicing</h2>
+
+    <br>
+    <br>
+    <br>
+
+    <h3>Shoot the Pictures</h3>
+
+    <div class="row">
+        <div class="column">
+            <img src="construct_left.jpg" width=45%>
+            <img src="construct_right.jpg" width=45%>
+        </div>
+
+        <div class="column">
+            <img src="green_left.jpg" width=45%>
+            <img src="green_right.jpg" width=45%>
+        </div>
+
+        <div class="column">
+            <img src="intersect_left.jpg" width=45%>
+            <img src="intersect_right.jpg" width=45%>
+        </div>
+    </div>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Recover Homographies</h3>
+    <p>Homography transformation:</p>
+    <ul>
+        <li>Given the original image p, the transformed image p', and the transformation matrix H, we have p' = Hp as
+            follows, with h<sub>33</sub> = 1.</li>
+    </ul>
+
+    <div class="row">
+        <div class="column">
+            <img src="p'=hp.jpg" width=100%>
+        </div>
+    </div>
+
+    <ul>
+        <li>Because z<sub>a</sub> is unknown, reduce the linear system to cancel z<sub>a</sub>. Then the linear system
+            becomes:</li>
+    </ul>
+
+    <div class="row">
+        <div class="column">
+            <img src="expand.jpg" width=100%>
+            <figcaption>shown as example of 4 points</figcaption>
+        </div>
+    </div>
+
+    <ul>
+        <li>Use least square regression <cod>np.linalg.lstsq</cod> to solve the matrix for robustness.</li>
+    </ul>
+
+    <p>Use <code>cpselect</code> in Control Point Selection tool from MATLAB to define corresponding keypoints of the
+        two images.</p>
+
+    <br>
+    <p><small>The above matrices are from <a
+                href="https://towardsdatascience.com/estimating-a-homography-matrix-522c70ec4b2c"> Homography Estimation
+                by Yalda Zadeh</a>.</small></p>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Warp the Images</h3>
+    <p>Warp the right image to match the left image.</p>
+    <ul>
+        <li>Use inverse warping for better color.</li>
+        <li>Use <code>scipy.interpolate.RectBivariateSpline</code> to interpolate the color in the case of not landing
+            right on pixel grid.</li>
+    </ul>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Image Rectification</h3>
+    <table>
+        <tr>
+            <th>original</th>
+            <th>warped to left</th>
+            <th>warped to right</th>
+        </tr>
+        <tr>
+            <td><img src="night_street.jpg" width=100%></td>
+            <td><img src="im3warped_left.jpg" width=60%></td>
+            <td><img src="im3warped_right.jpg" width=70%></td>
+        </tr>
+        <tr>
+            <td><img src="house.jpg" width=100%></td>
+            <td><img src="house_left.jpg" width=60%></td>
+            <td><img src="house_right.jpg" width=70%></td>
+        </tr>
+    </table>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Blend the Images into a Mosaic</h3>
+    <table>
+        <tr>
+            <th>original</th>
+            <th>mosaic</th>
+        </tr>
+        <tr>
+            <td><img src="construct_left.jpg" width=40%>
+                <img src="construct_right.jpg" width=40%>
+            </td>
+            <td><img src="mosaic_construct.jpg" width=60%></td>
+        </tr>
+        <tr>
+            <td><img src="green_left.jpg" width=40%>
+                <img src="green_right.jpg" width=40%>
+            </td>
+            <td><img src="mosaic_green.jpg" width=55%></td>
+        </tr>
+        <tr>
+            <td><img src="intersect_left.jpg" width=40%>
+                <img src="intersect_right.jpg" width=40%>
+            </td>
+            <td><img src="mosaic_intersect.jpg" width=55%></td>
+        </tr>
+    </table>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h2>Part 2: Feature Matching for Autostitching</h2>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Harris Interest Point Detector</h3>
+
+    <figure>
+        <img src="construct_left_harris.jpg" width=25%>
+        <img src="construct_right_harris.jpg" width=25%>
+    </figure>
+
+    <figure>
+        <img src="green_left_harris.jpg" width=25%>
+        <img src="green_right_harris.jpg" width=25%>
+    </figure>
+
+    <figure>
+        <img src="intersect_left_harris.jpg" width=25%>
+        <img src="intersect_right_harris.jpg" width=25%>
+    </figure>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Adaptive Non-Maximal Suppression</h3>
+    <p>Choose interest points from the corners found from the Harris detector only when they are not too close to each
+        other. Prioritize the points with higher corner strength.</p>
+
+    <figure>
+        <img src="construct_left_anms.jpg" width=25%>
+        <img src="construct_right_anms.jpg" width=25%>
+    </figure>
+
+    <figure>
+        <img src="green_left_anms.jpg" width=25%>
+        <img src="green_right_anms.jpg" width=25%>
+    </figure>
+
+    <figure>
+        <img src="intersect_left_anms.jpg" width=25%>
+        <img src="intersect_right_anms.jpg" width=25%>
+    </figure>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Feature Descriptor Extraction</h3>
+    <p>For each interest point, subsample a 8*8 patch from the 40*40 patch around it and normalize it.</p>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Feature Matching</h3>
+    <p>Use Lowe's method:
+    <ul>
+        <li>For every point in the left image, use the sum of squared differences to score the pairing with each point
+            in the right image.</li>
+        <li>Consider the pairing only when the best pairing in the right image is much better than the second best
+            pairing in the right image.</li>
+        <li>The threshold is chosen to be best/second_best < 0.7 by Figure 6b in the paper.</li>
+    </ul>
+    The Lowe's are in orange.
+    </p>
+
+    <figure>
+        <img src="construct_left_lowe.jpg" width=25%>
+        <img src="construct_right_lowe.jpg" width=25%>
+    </figure>
+
+    <figure>
+        <img src="green_left_lowe.jpg" width=25%>
+        <img src="green_right_lowe.jpg" width=25%>
+    </figure>
+
+    <figure>
+        <img src="intersect_left_lowe.jpg" width=25%>
+        <img src="intersect_right_lowe.jpg" width=25%>
+    </figure>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Robust Homography Estimate</h3>
+    <p>Use 4-Point RANSAC:
+    <ul>
+        <li>Randomly choose 4 points and use their Lowe's correspondence in the other image to compute the homography.
+        </li>
+        <li>Record the number of Lowe's pairs that agree with this homography with epsilon.</li>
+        <li>Chosse the homography that has the most agreement with the rest of the Lowe's pairs.</li>
+    </ul>
+    </p>
+
+    <p>The RANSAC are in green.</p>
+    <p>The photos are not well taken because the features concentrate on one side, so with small epsilons there are no
+        points counting for the other side of the image, and the mosaic result is not ideal. Improve with larger
+        epsilon.</p>
+    <p>With large epsilon = 1000:</p>
+
+    <figure>
+        <img src="construct_left_ransac1000.jpg" width=25%>
+        <img src="construct_right_ransac1000.jpg" width=25%>
+        <figcaption></figcaption>
+    </figure>
+
+    <figure>
+        <img src="green_left_ransac1000.jpg" width=25%>
+        <img src="green_right_ransac1000.jpg" width=25%>
+    </figure>
+
+    <figure>
+        <img src="intersect_left_ransac1000.jpg" width=25%>
+        <img src="intersect_right_ransac1000.jpg" width=25%>
+    </figure>
+
+    <p>Mosaic result:</p>
+
+    <table>
+        <tr>
+            <th>manual stitching</th>
+            <th>auto stitching</th>
+        </tr>
+        <tr>
+            <td><img src="mosaic_construct.jpg" width=55%></td>
+            <td><img src="mosaic_construct_auto77.jpg" width=55%></td>
+        </tr>
+        <tr>
+            <td><img src="mosaic_green.jpg" width=55%></td>
+            <td><img src="mosaic_green_auto1000.jpg" width=55%></td>
+        </tr>
+        <tr>
+            <td><img src="mosaic_intersect.jpg" width=55%></td>
+            <td><img src="mosaic_intersect_auto1000.jpg" width=55%></td>
+        </tr>
+    </table>
+
+
+    <br>
+    <br>
+    <br>
+
+
+    <h3>Reflection</h3>
+    <p>The photos are not well taken because the features concentrate on one side, so during the process it is hard to
+        give both sides with equal attention. Though it is reminded to take photos with rich features, I did not fully
+        understand that the features should expand the whole space.</p>
+
+</body>
+
+</html>
